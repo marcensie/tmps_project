@@ -68,6 +68,10 @@ class Library {
       genre.textContent = `Genre: ${item.getGenre().getName()}`;
       productItem.appendChild(genre);
 
+      const price = document.createElement('p');
+      price.textContent = `Price: $${item.getPrice().toFixed(2)}`;
+      productItem.appendChild(price);
+
       if (item.getDescription()) {
         const description = document.createElement('p');
         description.textContent = `Description: ${item.getDescription()}`;
@@ -117,6 +121,7 @@ class ProductBuilder {
     this.title = '';
     this.author = '';
     this.genre = null;
+    this.price = 0; // Add the price property
     this.genreFactory = genreFactory;
   }
 
@@ -135,6 +140,11 @@ class ProductBuilder {
     return this;
   }
 
+  withPrice(price) {
+    this.price = price; // Set the price
+    return this;
+  }
+
   build() {
     throw new Error('build() method must be implemented in the derived class.');
   }
@@ -147,7 +157,7 @@ class BookBuilder extends ProductBuilder {
   }
 
   build() {
-    return new Book(this.title, this.author, this.genre);
+    return new Book(this.title, this.author, this.genre, this.price); // Pass the price to the Book constructor
   }
 }
 
@@ -158,16 +168,17 @@ class JournalBuilder extends ProductBuilder {
   }
 
   build() {
-    return new Journal(this.title, this.author, this.genre);
+    return new Journal(this.title, this.author, this.genre, this.price); // Pass the price to the Journal constructor
   }
 }
 
 class Book {
-  constructor(title, author, genre) {
+  constructor(title, author, genre, price) {
     this.title = title;
     this.author = author;
     this.type = 'Book';
     this.genre = genre;
+    this.price = price; // Add the price property
   }
 
   getTitle() {
@@ -180,6 +191,10 @@ class Book {
 
   getGenre() {
     return this.genre;
+  }
+
+  getPrice() {
+    return this.price; // Return the price
   }
 
   getDescription() {
@@ -188,11 +203,12 @@ class Book {
 }
 
 class Journal {
-  constructor(title, author, genre) {
+  constructor(title, author, genre, price) {
     this.title = title;
     this.author = author;
     this.type = 'Journal';
     this.genre = genre;
+    this.price = price; // Add the price property
   }
 
   getTitle() {
@@ -205,6 +221,10 @@ class Journal {
 
   getGenre() {
     return this.genre;
+  }
+
+  getPrice() {
+    return this.price; // Return the price
   }
 
   getDescription() {
@@ -230,6 +250,10 @@ class ProductWithDescription {
     return this.product.getGenre();
   }
 
+  getPrice() {
+    return this.product.getPrice();
+  }
+
   getDescription() {
     if (this.desc) {
       return `${this.product.getDescription()} - ${this.desc}`;
@@ -244,9 +268,9 @@ const bookFactory = new BookFactory(genreFactory);
 const journalFactory = new JournalFactory(genreFactory);
 
 const preCreatedProducts = [
-  { type: 'Book', title: 'Book 1', author: 'Author 1', genre: 'Fantasy', description: 'Description 1' },
-  { type: 'Journal', title: 'Journal 1', author: 'Author 2', genre: 'Science', description: 'Description 2' },
-  { type: 'Book', title: 'Book 2', author: 'Author 3', genre: 'Mystery' },
+  { type: 'Book', title: 'Book 1', author: 'Author 1', genre: 'Fantasy', price: 9.99, description: 'Description 1' },
+  { type: 'Journal', title: 'Journal 1', author: 'Author 2', genre: 'Science', price: 4.99, description: 'Description 2' },
+  { type: 'Book', title: 'Book 2', author: 'Author 3', genre: 'Mystery', price: 12.99 },
 ];
 
 preCreatedProducts.forEach((item) => {
@@ -257,7 +281,12 @@ preCreatedProducts.forEach((item) => {
   } else {
     productBuilder = journalFactory.createProductBuilder();
   }
-  const product = productBuilder.withTitle(item.title).withAuthor(item.author).withGenre(genre).build();
+  const product = productBuilder
+    .withTitle(item.title)
+    .withAuthor(item.author)
+    .withGenre(genre)
+    .withPrice(item.price) // Set the price
+    .build();
   const productWithDesc = new ProductWithDescription(product, item.description);
   library.addProduct(productWithDesc);
 });
@@ -266,12 +295,14 @@ const addProductButton = document.getElementById('add-product');
 const titleInput = document.getElementById('title');
 const authorInput = document.getElementById('author');
 const genreInput = document.getElementById('genre');
+const priceInput = document.getElementById('price');
 const descInput = document.getElementById('description');
 
 addProductButton.addEventListener('click', () => {
   const title = titleInput.value;
   const author = authorInput.value;
   const genreName = genreInput.value;
+  const price = parseFloat(priceInput.value);
   const desc = descInput.value;
 
   const genre = genreFactory.getGenre(genreName);
@@ -282,16 +313,23 @@ addProductButton.addEventListener('click', () => {
   } else {
     productBuilder = journalFactory.createProductBuilder();
   }
-  const product = productBuilder.withTitle(title).withAuthor(author).withGenre(genre).build();
+  const product = productBuilder
+    .withTitle(title)
+    .withAuthor(author)
+    .withGenre(genre)
+    .withPrice(price) // Set the price
+    .build();
   const productWithDesc = new ProductWithDescription(product, desc);
   library.addProduct(productWithDesc);
 
   titleInput.value = '';
   authorInput.value = '';
   genreInput.value = '';
+  priceInput.value = '';
   descInput.value = '';
 
   library.displayProducts();
 });
+
 
 library.displayProducts();
