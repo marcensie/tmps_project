@@ -281,7 +281,7 @@ class Journal {
     return '';
   }
 }
-
+//decorator
 class ProductWithDescription {
   constructor(product, desc) {
     this.product = product;
