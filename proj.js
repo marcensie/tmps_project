@@ -1,3 +1,4 @@
+
 // Flyweight Factory
 class GenreFactory {
   constructor() {
@@ -262,10 +263,48 @@ class ProductWithDescription {
   }
 }
 
+class LibraryFacade {
+  constructor() {
+    this.library = new Library();
+    this.genreFactory = new GenreFactory();
+    this.bookFactory = new BookFactory(this.genreFactory);
+    this.journalFactory = new JournalFactory(this.genreFactory);
+  }
+
+  addProduct(type, title, author, genreName, price, description) {
+    const genre = this.genreFactory.getGenre(genreName);
+    let productBuilder;
+    if (type === 'Book') {
+      productBuilder = this.bookFactory.createProductBuilder();
+    } else {
+      productBuilder = this.journalFactory.createProductBuilder();
+    }
+  
+    const product = productBuilder
+      .withTitle(title)
+      .withAuthor(author)
+      .withGenre(genre)
+      .withPrice(price)
+      .build();
+  
+    const productWithDesc = new ProductWithDescription(product, description);
+    this.library.addProduct(productWithDesc);
+  }
+
+  removeProduct(product) {
+    this.library.removeProduct(product);
+  }
+
+  displayProducts() {
+    this.library.displayProducts();
+  }
+}
+
 const library = new Library();
 const genreFactory = new GenreFactory();
 const bookFactory = new BookFactory(genreFactory);
 const journalFactory = new JournalFactory(genreFactory);
+const libraryFacade = new LibraryFacade();
 
 const preCreatedProducts = [
   { type: 'Book', title: 'Book 1', author: 'Author 1', genre: 'Fantasy', price: 9.99, description: 'Description 1' },
@@ -274,21 +313,14 @@ const preCreatedProducts = [
 ];
 
 preCreatedProducts.forEach((item) => {
-  const genre = genreFactory.getGenre(item.genre);
-  let productBuilder;
-  if (item.type === 'Book') {
-    productBuilder = bookFactory.createProductBuilder();
-  } else {
-    productBuilder = journalFactory.createProductBuilder();
-  }
-  const product = productBuilder
-    .withTitle(item.title)
-    .withAuthor(item.author)
-    .withGenre(genre)
-    .withPrice(item.price) // Set the price
-    .build();
-  const productWithDesc = new ProductWithDescription(product, item.description);
-  library.addProduct(productWithDesc);
+  libraryFacade.addProduct(
+    item.type,
+    item.title,
+    item.author,
+    item.genre,
+    item.price,
+    item.description
+  );
 });
 
 const addProductButton = document.getElementById('add-product');
@@ -299,28 +331,13 @@ const priceInput = document.getElementById('price');
 const descInput = document.getElementById('description');
 
 addProductButton.addEventListener('click', () => {
+  const type = genreInput.value; 
   const title = titleInput.value;
   const author = authorInput.value;
   const genreName = genreInput.value;
   const price = parseFloat(priceInput.value);
   const desc = descInput.value;
-
-  const genre = genreFactory.getGenre(genreName);
-
-  let productBuilder;
-  if (type === 'Book') {
-    productBuilder = bookFactory.createProductBuilder();
-  } else {
-    productBuilder = journalFactory.createProductBuilder();
-  }
-  const product = productBuilder
-    .withTitle(title)
-    .withAuthor(author)
-    .withGenre(genre)
-    .withPrice(price) // Set the price
-    .build();
-  const productWithDesc = new ProductWithDescription(product, desc);
-  library.addProduct(productWithDesc);
+    libraryFacade.addProduct(type, title, author, genreName, price, desc);
 
   titleInput.value = '';
   authorInput.value = '';
@@ -328,8 +345,7 @@ addProductButton.addEventListener('click', () => {
   priceInput.value = '';
   descInput.value = '';
 
-  library.displayProducts();
+  libraryFacade.displayProducts();
 });
 
-
-library.displayProducts();
+libraryFacade.displayProducts();
