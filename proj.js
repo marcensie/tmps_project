@@ -98,7 +98,7 @@ class Library {
       productItem.className = 'product-item';
 
       const type = document.createElement('h4');
-      type.textContent = item.type;
+      type.textContent = `${item.getType()}`;
       productItem.appendChild(type);
 
       const title = document.createElement('p');
@@ -114,7 +114,7 @@ class Library {
       productItem.appendChild(genre);
 
       const price = document.createElement('p');
-      price.textContent = `Price: $${item.getPrice().toFixed(2)}`;
+      price.textContent = `Price: ${item.getPrice().toFixed(2)}`;
       productItem.appendChild(price);
 
       if (item.getDescription()) {
@@ -230,7 +230,9 @@ class Book {
     this.genre = genre;
     this.price = price;
   }
-
+  getType() {
+    return this.type;
+  }
   getTitle() {
     return this.title;
   }
@@ -260,7 +262,9 @@ class Journal {
     this.genre = genre;
     this.price = price;
   }
-
+  getType() {
+    return this.type;
+  }
   getTitle() {
     return this.title;
   }
@@ -287,7 +291,9 @@ class ProductWithDescription {
     this.product = product;
     this.desc = desc;
   }
-
+  getType() {
+    return this.product.type;
+  }
   getTitle() {
     return this.product.getTitle();
   }
@@ -306,12 +312,12 @@ class ProductWithDescription {
 
   getDescription() {
     if (this.desc) {
-      return `${this.product.getDescription()} - ${this.desc}`;
+      return `${this.product.getDescription()}  ${this.desc}`;
     }
     return this.product.getDescription();
   }
 }
-
+//facade
 class LibraryFacade {
   constructor() {
     this.library = new Library();
