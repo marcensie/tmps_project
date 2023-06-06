@@ -1,4 +1,3 @@
-
 // Flyweight Factory
 class GenreFactory {
   constructor() {
@@ -27,6 +26,24 @@ class Genre {
   }
 }
 
+// Iterator Pattern
+class LibraryIterator {
+  constructor(products) {
+    this.products = products;
+    this.currentIndex = 0;
+  }
+
+  hasNext() {
+    return this.currentIndex < this.products.length;
+  }
+
+  next() {
+    const product = this.products[this.currentIndex];
+    this.currentIndex++;
+    return product;
+  }
+}
+
 // Singleton Pattern
 class Library {
   constructor() {
@@ -44,12 +61,39 @@ class Library {
       this.products.splice(index, 1);
     }
   }
+  sortProducts(sortBy) {
+    if (sortBy === 'title') {
+      this.products.sort((a, b) => a.getTitle().localeCompare(b.getTitle()));
+    } else if (sortBy === 'price') {
+      this.products.sort((a, b) => a.getPrice() - b.getPrice());
+    }
+  }
+  createIterator() {
+    return new LibraryIterator(this.products);
+  }
 
-  displayProducts() {
+  countProducts() {
+    let count = 0;
+    const iterator = this.createIterator();
+    while (iterator.hasNext()) {
+      iterator.next();
+      count++;
+    }
+    return count;
+  }
+
+  displayProducts(sortBy) {
+    const sortedProducts = [...this.products]; // Create a copy of the products array
+    if (sortBy === 'title') {
+      sortedProducts.sort((a, b) => a.getTitle().localeCompare(b.getTitle()));
+    } else if (sortBy === 'price') {
+      sortedProducts.sort((a, b) => a.getPrice() - b.getPrice());
+    }
+
     const productList = document.getElementById('product-list');
     productList.innerHTML = '';
 
-    this.products.forEach((item, index) => {
+    sortedProducts.forEach((item, index) => {
       const productItem = document.createElement('li');
       productItem.className = 'product-item';
 
@@ -82,7 +126,12 @@ class Library {
       productList.appendChild(productItem);
     });
   }
+  displayProductCount() {
+    const productCountElement = document.getElementById('product-count');
+    productCountElement.textContent = this.countProducts().toString();
+  }
 }
+
 
 // Abstract Factory Pattern
 class ProductAbstractFactory {
@@ -122,7 +171,7 @@ class ProductBuilder {
     this.title = '';
     this.author = '';
     this.genre = null;
-    this.price = 0; // Add the price property
+    this.price = 0;
     this.genreFactory = genreFactory;
   }
 
@@ -142,7 +191,7 @@ class ProductBuilder {
   }
 
   withPrice(price) {
-    this.price = price; // Set the price
+    this.price = price;
     return this;
   }
 
@@ -158,7 +207,7 @@ class BookBuilder extends ProductBuilder {
   }
 
   build() {
-    return new Book(this.title, this.author, this.genre, this.price); // Pass the price to the Book constructor
+    return new Book(this.title, this.author, this.genre, this.price);
   }
 }
 
@@ -169,7 +218,7 @@ class JournalBuilder extends ProductBuilder {
   }
 
   build() {
-    return new Journal(this.title, this.author, this.genre, this.price); // Pass the price to the Journal constructor
+    return new Journal(this.title, this.author, this.genre, this.price);
   }
 }
 
@@ -179,7 +228,7 @@ class Book {
     this.author = author;
     this.type = 'Book';
     this.genre = genre;
-    this.price = price; // Add the price property
+    this.price = price;
   }
 
   getTitle() {
@@ -195,7 +244,7 @@ class Book {
   }
 
   getPrice() {
-    return this.price; // Return the price
+    return this.price;
   }
 
   getDescription() {
@@ -209,7 +258,7 @@ class Journal {
     this.author = author;
     this.type = 'Journal';
     this.genre = genre;
-    this.price = price; // Add the price property
+    this.price = price;
   }
 
   getTitle() {
@@ -225,7 +274,7 @@ class Journal {
   }
 
   getPrice() {
-    return this.price; // Return the price
+    return this.price;
   }
 
   getDescription() {
@@ -279,24 +328,75 @@ class LibraryFacade {
     } else {
       productBuilder = this.journalFactory.createProductBuilder();
     }
-  
+
     const product = productBuilder
       .withTitle(title)
       .withAuthor(author)
       .withGenre(genre)
       .withPrice(price)
       .build();
-  
+
     const productWithDesc = new ProductWithDescription(product, description);
     this.library.addProduct(productWithDesc);
   }
 
-  removeProduct(product) {
-    this.library.removeProduct(product);
+  removeProduct(type, title) {
+    const products = this.library.products;
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i];
+      if (product.type === type && product.getTitle() === title) {
+        this.library.removeProduct(product);
+        break;
+      }
+    }
   }
 
-  displayProducts() {
-    this.library.displayProducts();
+  displayProducts(sortBy) {
+    this.library.displayProducts(sortBy);
+  }
+  sortProducts(sortBy) {
+    this.library.sortProducts(sortBy);
+  }
+
+  getGenreCount() {
+    return this.genreFactory.getGenreCount();
+  }
+  countProducts() {
+    return this.library.countProducts();
+  }
+  displayProductCount() {
+    return this.library.displayProductCount();
+  }
+}
+
+class Command {
+  execute() {
+    throw new Error('execute() method must be implemented in the derived class.');
+  }
+}
+
+// Concrete Command 1 - SortCommand
+class SortCommand extends Command {
+  constructor(libraryFacade, sortBy) {
+    super();
+    this.libraryFacade = libraryFacade;
+    this.sortBy = sortBy;
+  }
+
+  execute() {
+    this.libraryFacade.sortProducts(this.sortBy);
+    this.libraryFacade.displayProducts(this.sortBy);
+  }
+}
+
+// Invoker
+class SortButton {
+  constructor(command) {
+    this.command = command;
+  }
+
+  onClick() {
+    this.command.execute();
   }
 }
 
@@ -337,7 +437,8 @@ addProductButton.addEventListener('click', () => {
   const genreName = genreInput.value;
   const price = parseFloat(priceInput.value);
   const desc = descInput.value;
-    libraryFacade.addProduct(type, title, author, genreName, price, desc);
+
+  libraryFacade.addProduct(type, title, author, genreName, price, desc);
 
   titleInput.value = '';
   authorInput.value = '';
@@ -345,7 +446,22 @@ addProductButton.addEventListener('click', () => {
   priceInput.value = '';
   descInput.value = '';
 
+
+  libraryFacade.displayProductCount();
   libraryFacade.displayProducts();
+
+const sortButtons = document.querySelectorAll('#sort-button');
+sortButtons.forEach((button) => {
+  const sortBy = button.getAttribute('data-sort');
+  const sortCommand = new SortCommand(libraryFacade, sortBy);
+  const sortButton = new SortButton(sortCommand);
+
+  button.addEventListener('click', () => {
+    sortButton.onClick();
+  });
+});
+
 });
 
 libraryFacade.displayProducts();
+

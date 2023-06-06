@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Library Management System</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     .container {
       max-width: 600px;
@@ -35,6 +36,7 @@
       border-radius: 5px;
       padding: 10px;
       margin-bottom: 20px;
+      position: relative;
     }
     .product-item h4 {
       margin-top: 0;
@@ -81,12 +83,14 @@
     <input type="text" id="description" required>
   </div>
 
-
   <div class="form-group">
     <button id="add-product">Add Product</button>
   </div>
 
   <h3>Product List:</h3>
+  <p>Total number of products: <span id="product-count"></span></p>
+  <button id="sort-button" data-sort="title">Sort by Title</button>
+  <button id="sort-button" data-sort="price">Sort by Price</button>
   <ul class="product-list" id="product-list"></ul>
 </div>
 
