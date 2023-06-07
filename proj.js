@@ -430,6 +430,7 @@ preCreatedProducts.forEach((item) => {
 });
 
 const addProductButton = document.getElementById('add-product');
+const typeInput = document.getElementById('type');
 const titleInput = document.getElementById('title');
 const authorInput = document.getElementById('author');
 const genreInput = document.getElementById('genre');
@@ -437,7 +438,7 @@ const priceInput = document.getElementById('price');
 const descInput = document.getElementById('description');
 
 addProductButton.addEventListener('click', () => {
-  const type = genreInput.value; 
+  const type = typeInput.value; 
   const title = titleInput.value;
   const author = authorInput.value;
   const genreName = genreInput.value;
@@ -470,4 +471,3 @@ sortButtons.forEach((button) => {
 });
 
 libraryFacade.displayProducts();
-
