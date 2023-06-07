@@ -23,19 +23,22 @@
     }
     .form-group button {
       padding: 5px 10px;
-      background-color: #4CAF50;
+      background-color: #888888; 
       color: white;
       border: none;
+    }
+    .product-list-container {
+      padding: 20px;
     }
     .product-list {
       list-style: none;
       padding: 0;
+      margin-top: 20px;
     }
     .product-item {
       border: 1px solid #ccc;
       border-radius: 5px;
       padding: 10px;
-      margin-bottom: 20px;
       position: relative;
     }
     .product-item h4 {
@@ -89,11 +92,12 @@
 
   <h3>Product List:</h3>
   <p>Total number of products: <span id="product-count"></span></p>
-  <button id="sort-button" data-sort="title">Sort by Title</button>
-  <button id="sort-button" data-sort="price">Sort by Price</button>
+  <button id="sort-by-title" data-sort="title">Sort by Title</button>
+  <button id="sort-by-price" data-sort="price">Sort by Price</button>
+</div>
+<div class="product-list-container">
   <ul class="product-list" id="product-list"></ul>
 </div>
-
-<script src="proj.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
