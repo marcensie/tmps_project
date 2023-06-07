@@ -405,6 +405,29 @@ class SortButton {
     this.command.execute();
   }
 }
+class AddProductCommand extends Command {
+  constructor(libraryFacade, type, title, author, genreName, price, description) {
+    super();
+    this.libraryFacade = libraryFacade;
+    this.type = type;
+    this.title = title;
+    this.author = author;
+    this.genreName = genreName;
+    this.price = price;
+    this.description = description;
+  }
+
+  execute() {
+    this.libraryFacade.addProduct(
+      this.type,
+      this.title,
+      this.author,
+      this.genreName,
+      this.price,
+      this.description
+    );
+  }
+}
 
 const library = new Library();
 const genreFactory = new GenreFactory();
@@ -438,14 +461,23 @@ const priceInput = document.getElementById('price');
 const descInput = document.getElementById('description');
 
 addProductButton.addEventListener('click', () => {
-  const type = typeInput.value; 
+  const type = typeInput.value;
   const title = titleInput.value;
   const author = authorInput.value;
   const genreName = genreInput.value;
   const price = parseFloat(priceInput.value);
   const desc = descInput.value;
 
-  libraryFacade.addProduct(type, title, author, genreName, price, desc);
+  const addProductCommand = new AddProductCommand(
+    libraryFacade,
+    type,
+    title,
+    author,
+    genreName,
+    price,
+    desc
+  );
+  addProductCommand.execute();
 
   titleInput.value = '';
   authorInput.value = '';
@@ -453,9 +485,9 @@ addProductButton.addEventListener('click', () => {
   priceInput.value = '';
   descInput.value = '';
 
-
   libraryFacade.displayProductCount();
   libraryFacade.displayProducts();
+});
 
 const sortButtons = document.querySelectorAll('#sort-button');
 sortButtons.forEach((button) => {
@@ -468,6 +500,5 @@ sortButtons.forEach((button) => {
   });
 });
 
-});
 
 libraryFacade.displayProducts();
